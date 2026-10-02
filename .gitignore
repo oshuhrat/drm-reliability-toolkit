@@ -1,0 +1,8 @@
+# Evaluation outputs: kept local by default. Commit real runs deliberately if wanted.
+eval/runs/
+eval/blind/
+eval/keys/
+eval/results/
+dist/
+__pycache__/
+*.pyc

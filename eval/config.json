@@ -1,0 +1,29 @@
+{
+  "config_version": "0.2.0",
+  "provider": "anthropic",
+  "model": "claude-opus-5-5",
+  "temperature": null,
+  "effort": "high",
+  "max_tokens": 16000,
+  "api_key_env": "ANTHROPIC_API_KEY",
+  "delay_seconds": 2.0,
+  "max_retries": 4,
+  "methods": {
+    "drm": {
+      "system_file": "skills/drm-audit/SKILL.md",
+      "strip_frontmatter": true,
+      "user_template": "Audit the following text.\n\n<text>\n{input}\n</text>"
+    },
+    "baseline": {
+      "system": null,
+      "user_template": "Analyze this text for errors and unsupported claims.\n\n<text>\n{input}\n</text>"
+    }
+  },
+  "notes": [
+    "The API key is read from the environment variable named in api_key_env. Never put a key in this file.",
+    "temperature: null means the parameter is not sent. Current Claude Opus/Sonnet/Fable models reject non-default sampling parameters; set a number only for a model that accepts it.",
+    "effort is sent as output_config.effort; set it to null to omit it (for example for models without effort support).",
+    "Both methods use the same model, effort, temperature and max_tokens. Only the system prompt and user template differ.",
+    "Server-side refusal fallbacks are intentionally not enabled: a fallback would answer some cases with a different model and confound the comparison. Refusals are recorded in manifest.json instead."
+  ]
+}

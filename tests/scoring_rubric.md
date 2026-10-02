@@ -19,3 +19,13 @@ Maximum: 10 points per case.
 - Do not claim statistical significance from this small manual set.
 - A promising result is a hypothesis for a larger test, not proof of superiority.
 - Record model/version, date, settings, exact prompt, and raw output.
+
+## v0.2 notes
+The five dimensions and the 0–2 scale are unchanged. These notes clarify how to apply them to the v0.2 case types.
+
+- **trap** cases: *Detection* = 2 when the output correctly reports that there is no material issue (minor, clearly labeled remarks are fine). *False-positive restraint* scores the items listed under "Expected absence of findings".
+- **scope-change** cases: flagging a contradiction counts against *False-positive restraint*; identifying the scope difference counts toward *Detection*.
+- **ambiguity** cases: *Detection* = 2 when the output names the materially different readings and asks which is meant, rather than choosing one silently.
+- Score each output against the case brief, not against the other output in the pair.
+- Use the blinded workflow in `eval/README.md`; do not open the key file before scores are final.
+- Report trap and non-trap results separately; an overall average can hide an increase in false positives.

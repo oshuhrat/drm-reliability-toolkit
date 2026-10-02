@@ -1,35 +1,60 @@
-# DRM Reliability Toolkit — v0.1
+# DRM Reliability Toolkit — v0.2
 
-An evidence-first skill for auditing AI-generated answers and long conversations.
+Skills for checking AI-generated reports, analyses, and research summaries for overreach: unsupported certainty, causal claims built on correlation or timing, and evidence that does not match the conclusion.
 
-## What it does
-- Separates textual observations from interpretations and hypotheses.
-- Flags unsupported certainty, contradictions, missing evidence, and shifts in position.
-- Produces a structured report with evidence excerpts and limitations.
-- Avoids claiming that text alone proves consciousness, emotion, intent, or hidden internal states.
+Status: prototype. Whether it finds more real problems than a plain "find the errors" prompt, without more false alarms, has **not** been measured yet. The evaluation set and scripts for that comparison are included.
+
+## What is included
+
+| Path | What it is |
+|---|---|
+| `skills/drm-audit/` | **Audit mode.** Reviews someone else's text (an AI answer, report, or conversation) and produces an evidence ledger with exact quotes, support levels, contradictions vs. scope changes, and discriminating tests. Has a short 3–5 line report when nothing material is found. |
+| `skills/drm-contract/` | **Answer mode.** Structures the model's own answer: understanding → assumptions → plan → answer → alternatives → limits → next experiment. Uses `[LIMIT]`, `[SIM]`, `[PARADOX]`, `[PARTNER]` markers only when there is a basis for them. Has a short mode for simple questions. |
+| `tests/evaluation_cases.md` | 26 synthetic cases with expected findings and expected absence of findings; 10 are false-positive traps. |
+| `tests/scoring_rubric.md` | Five 0–2 dimensions: evidence fidelity, detection, false-positive restraint, calibration, actionability. |
+| `eval/` | Scripts to run both methods, build a blinded review pack, and aggregate scores. See `eval/README.md`. |
+| `examples/` | A synthetic self-report dialogue and a sample audit report. |
+
+## What it looks for
+- Conclusions stronger than the evidence ("proves", "will", "all users", "cures").
+- Causal claims based only on sequence or correlation.
+- Evidence that covers a different population, metric, or scope than the claim.
+- Precise numbers without a source or method.
+- Claims of verification that the context shows did not happen.
+- Apparent contradictions, separated from changes in scope, time, or definition.
+- Ambiguous key terms that change the conclusion.
+
+It is also meant to leave sound text alone: when the author has already stated limits or the evidence supports the claim, the expected output is a short "no material issues" report.
 
 ## What it does not do
-- It does not access model internals.
-- It does not independently verify facts unless sources or a separate research tool are available.
-- It does not guarantee fewer hallucinations.
-- It does not diagnose consciousness or subjective experience.
+- It does not verify facts against the world unless sources or a separate research tool are supplied.
+- It does not access model internals. Self-reports (including `[SIM]`) are treated as text, not as insight into mechanisms.
+- It does not establish or rule out consciousness, feelings, or intentions from text.
+- It does not guarantee fewer errors in any model's output.
+- It has not been shown to outperform a baseline prompt.
 
 ## Install
 
 ### Claude Code
-Copy `skills/drm-audit/` into your project's `.claude/skills/` directory:
+Copy one or both skill directories into your project's `.claude/skills/`:
 
 ```text
 your-project/.claude/skills/drm-audit/SKILL.md
+your-project/.claude/skills/drm-contract/SKILL.md
 ```
 
-### Codex and other agents
-Skill discovery conventions vary by tool and version. Copy `skills/drm-audit/SKILL.md` into the skill directory documented by your agent. Adapt metadata if required by that tool.
+### Other agents
+Skill discovery conventions vary by tool and version. Copy the `SKILL.md` files into the skill directory your agent documents and adapt the frontmatter if needed.
 
 ## Use
-Ask the agent to audit a conversation or document using the DRM evidence protocol. Provide the text and the question you want answered. For long conversations, specify the relevant time range.
+- **Audit:** ask the agent to audit a report or conversation with `drm-audit`, and state the question you want answered (for example, "Does this backtest memo support its conclusion?"). For long material, say which part to review.
+- **Contract:** ask the agent to answer using `drm-contract`. Simple questions get the short mode automatically.
 
-## Evaluation before selling
-Run DRM and a plain baseline prompt on the same fixed test set. Compare correctly identified issues, false positives, evidence accuracy, contradiction detection, and calibration. Do not market numerical improvement until measured on a fixed test set.
+## Evaluation
+The plan is to compare `drm-audit` with the plain prompt "Analyze this text for errors and unsupported claims." on the fixed case set, with blinded scoring and traps reported separately. See `eval/README.md` for the workflow. No results are reported here because none have been produced yet.
 
-This is a prototype starter package, not a validated benchmark or a guarantee of improved model reliability.
+## Packaging
+`python build/pack.py` writes a local ZIP to `dist/`. It does not publish anything.
+
+## License
+See `LICENSE`.

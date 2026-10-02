@@ -1,6 +1,9 @@
 ---
 name: drm-audit
 description: Audit AI-generated answers, reports, and conversations for evidence quality, unsupported certainty, contradictions, ambiguity, and shifts in position.
+license: MIT
+metadata:
+  version: "0.2.0"
 ---
 
 # DRM Audit — Evidence-First Review
@@ -60,6 +63,19 @@ For each important unresolved claim, suggest the smallest practical test that co
 
 ### 7. Produce the report
 Use the template below. Do not fabricate findings to make the audit look useful.
+
+If the review finds no material issue, use the short report instead of the full template.
+
+## Short report (no material issues)
+Use when steps 1–6 found no material issue: no unsupported certainty, contradiction, evidence mismatch, or unresolved ambiguity that changes the conclusion. Write 3–5 lines:
+
+1. Material reviewed and audit question.
+2. "No material issues found in the reviewed material."
+3. Why: the one or two strongest reasons the claims are supported or already qualified by the author (quote briefly).
+4. Optional: one minor, clearly non-material remark, labeled as minor.
+5. Optional: limits of the review (for example, text only; no external fact-checking).
+
+Do not pad the short report with generic caveats. Switch to the full template if any material issue appears.
 
 ## Output template
 # DRM Audit Report
