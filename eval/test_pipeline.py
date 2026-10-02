@@ -203,6 +203,21 @@ class PackTests(unittest.TestCase):
             self.assertNotIn("/keys/", name)
             self.assertNotIn("TASK_FOR_CLOUD_AGENT", name)
 
+class OpenCodeHelpersTest(unittest.TestCase):
+    def test_clean_output_strips_ansi_and_header(self):
+        from opencode_client import clean_output
+        esc = chr(27)
+        nl = chr(10)
+        raw = esc + "[0m" + nl + "> build - some-model" + nl + esc + "[0m" + nl + "Hello" + nl + "world" + nl
+        self.assertEqual(clean_output(raw), "Hello" + nl + "world" + nl)
+
+    def test_parse_scores_accepts_only_valid_json(self):
+        from judge import parse_scores
+        ok = '{"evidence_fidelity":2,"detection":1,"false_positive_restraint":2,"calibration":0,"actionability":1,"notes":"x"}'
+        self.assertEqual(parse_scores("text before " + ok)["detection"], 1)
+        self.assertIsNone(parse_scores('{"evidence_fidelity":3}'))
+        self.assertIsNone(parse_scores("no json here"))
+
 
 if __name__ == "__main__":
     unittest.main()

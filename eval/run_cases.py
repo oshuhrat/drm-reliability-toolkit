@@ -38,7 +38,8 @@ EMPTY_MARKER = "<!-- empty response: see manifest.json for stop_reason -->\n"
 
 def load_config(path: Path) -> dict:
     config = json.loads(path.read_text(encoding="utf-8"))
-    for key in ("model", "max_tokens", "api_key_env", "methods"):
+    required = ("model", "methods") if config.get("provider") == "opencode" else ("model", "max_tokens", "api_key_env", "methods")
+    for key in required:
         if key not in config:
             raise SystemExit(f"Config {path} is missing '{key}'")
     return config
@@ -148,6 +149,23 @@ class AnthropicCaller:
         }
 
 
+class OpenCodeCaller:
+    """`opencode run -m <provider/model>`; the system prompt goes in the message body."""
+
+    def __init__(self, config: dict):
+        self.config = config
+
+    def __call__(self, method: str, case: Case, *, system: str | None, user: str) -> dict:
+        from opencode_client import compose_prompt, run_opencode
+
+        return run_opencode(
+            self.config["model"],
+            compose_prompt(system, user),
+            binary=self.config.get("opencode_bin"),
+            timeout=int(self.config.get("timeout_seconds", 600)),
+        )
+
+
 # --- main ----------------------------------------------------------------------
 
 
@@ -202,7 +220,7 @@ def main(argv: list[str] | None = None) -> int:
             "model": config["model"],
             "temperature": config.get("temperature"),
             "effort": config.get("effort"),
-            "max_tokens": config["max_tokens"],
+            "max_tokens": config.get("max_tokens"),
             "config_file": str(args.config),
             "cases_file": str(args.cases),
             "cases_sha256": sha256(Path(args.cases).read_text(encoding="utf-8")),
@@ -221,7 +239,12 @@ def main(argv: list[str] | None = None) -> int:
             json.dumps(prompts[m], ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
         )
 
-    caller = mock_call if args.mock else AnthropicCaller(config)
+    if args.mock:
+        caller = mock_call
+    elif config.get("provider") == "opencode":
+        caller = OpenCodeCaller(config)
+    else:
+        caller = AnthropicCaller(config)
     delay = 0.0 if args.mock else float(config.get("delay_seconds", 0))
 
     done = skipped = failed = 0

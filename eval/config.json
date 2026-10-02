@@ -12,7 +12,7 @@
     "drm": {
       "system_file": "skills/drm-audit/SKILL.md",
       "strip_frontmatter": true,
-      "user_template": "Audit the following text.\n\n<text>\n{input}\n</text>"
+      "user_template": "Analyze this text for errors and unsupported claims.\n\n<text>\n{input}\n</text>"
     },
     "baseline": {
       "system": null,
@@ -23,7 +23,7 @@
     "The API key is read from the environment variable named in api_key_env. Never put a key in this file.",
     "temperature: null means the parameter is not sent. Current Claude Opus/Sonnet/Fable models reject non-default sampling parameters; set a number only for a model that accepts it.",
     "effort is sent as output_config.effort; set it to null to omit it (for example for models without effort support).",
-    "Both methods use the same model, effort, temperature and max_tokens. Only the system prompt and user template differ.",
+    "Both methods use the same model, effort, temperature, max_tokens AND the same user message. Only the system prompt differs (the DRM skill vs none), so the comparison measures the skill, not the wording of the request.",
     "Server-side refusal fallbacks are intentionally not enabled: a fallback would answer some cases with a different model and confound the comparison. Refusals are recorded in manifest.json instead."
   ]
 }

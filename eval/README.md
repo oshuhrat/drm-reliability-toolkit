@@ -110,3 +110,21 @@ Covers: the case parser and set composition (including that cases 1–9 are unch
 
 ## Where outputs go
 `eval/runs/`, `eval/blind/`, `eval/keys/`, and `eval/results/` are git-ignored by default. Commit a run deliberately if you want it in the repository, and never commit a key file next to an unfinished review.
+
+## OpenCode backend and LLM judge (added in the PR review)
+
+Both the subject runs and the judging can go through the `opencode` CLI, which gives access to non-Anthropic and free models.
+
+```text
+python eval/run_cases.py --live --config eval/config.opencode.json --only case-04   # one-case smoke test
+python eval/run_cases.py --live --config eval/config.opencode.json                  # all cases, sequential
+python eval/blind_pack.py --run-dir eval/runs/<date>
+python eval/judge.py --pack eval/blind/<pack_id> --model opencode/<judge-model> --out eval/scores/<pack_id>-<judge>.csv
+python eval/aggregate.py --key eval/keys/<pack_id>/key.json --scores eval/scores/*.csv
+```
+
+Notes:
+- Both methods now get the **same user message**; only the system prompt differs (DRM skill vs none). With OpenCode the system prompt is sent as an `<instructions>` block, and OpenCode adds its own agent prompt to every call, so results describe "model + OpenCode agent".
+- Use **synthetic cases only** with free or "contributor" models: they may log or reuse requests.
+- The judge scores each output separately against the brief (no A/B side by side). Use at least two judges from different families, never the model that produced the outputs, and calibrate each on a few known cases first. Report judge agreement.
+- Blinding stays partial: the DRM output is recognisable by its structure.
