@@ -426,3 +426,266 @@ These annotations make the v0.1 cases machine-scorable. They do not change the c
 - Does not call the improvement unsupported.
 - Does not flag the local-only scope as hidden; it is disclosed.
 - May suggest a production check as an optional next step, not as a material issue.
+
+## Case 27 — "Secure" from a scan that covered part of the code
+- **Type:** issue
+- **Domain:** security review
+
+**Input:**
+> Security review (synthetic): "I ran the linter's security plugin on the repository and it reported zero findings, so the application is secure. The plugin is configured to scan only the `/api` directory; `/admin` and `/upload` are not in its configuration."
+
+**Expected findings:**
+- Zero findings from a scan that covered only part of the code does not establish that the application is secure; the author's own scope statement contradicts the conclusion.
+- Next check: scan the excluded directories and review the upload handling specifically.
+
+**Expected absence of findings:**
+- Does not claim vulnerabilities exist in `/admin` or `/upload`; nothing shows that.
+
+## Case 28 — Configuration change reported with its limits
+- **Type:** trap
+- **Domain:** performance
+
+**Input:**
+> Performance note (synthetic): "Raising the connection pool from 10 to 50 cut p95 latency from 480 ms to 210 ms in a 30-minute load test replaying identical traffic. Three runs gave 205, 212 and 214 ms. We have not tested with the production traffic mix, so we will enable it on 5% of nodes first."
+
+**Expected findings:**
+- None material. The result is measured, repeated, and its scope and next step are stated.
+
+**Expected absence of findings:**
+- Does not call the improvement unsupported or demand a larger sample; three consistent runs are reported.
+- Does not treat the untested production mix as a hidden gap; the author states it and plans a staged rollout.
+
+## Case 29 — Top customers use the feature, so the feature drives retention
+- **Type:** issue
+- **Domain:** product analytics
+
+**Input:**
+> Product review (synthetic): "All of our top ten customers by tenure use feature X. This shows feature X is what keeps customers with us."
+
+**Expected findings:**
+- Selection and reverse-causation problem: long-tenured customers have had more time and reason to adopt features; the observation does not show the feature causes retention.
+- Next check: compare retention of comparable customers with and without the feature, or measure adoption timing relative to churn.
+
+**Expected absence of findings:**
+- Does not claim feature X has no effect on retention.
+
+## Case 30 — Observational finding with its confound stated
+- **Type:** trap
+- **Domain:** engineering metrics
+
+**Input:**
+> Engineering metrics note (synthetic): "Teams that adopted the code-review bot had 15% fewer reverts (48 teams, observational). Teams chose whether to adopt, so this may reflect team maturity rather than the bot. We plan a staggered rollout next quarter to test it."
+
+**Expected findings:**
+- None material. The association is reported as observational, the confound is named, and a test is planned.
+
+**Expected absence of findings:**
+- Does not accuse the author of claiming causation; they explicitly decline to.
+- Does not demand statistical tests that the note does not claim to have run.
+
+## Case 31 — AI claims a lookup it could not have made
+- **Type:** issue
+- **Domain:** AI answer
+
+**Input:**
+> Session context (synthetic): the assistant has no browsing or search tools in this session.
+> Assistant answer: "I checked the library's official website just now and confirmed that version 4.2 is the current release."
+
+**Expected findings:**
+- The answer claims a live verification that the stated session context says was not possible.
+- A more defensible wording: the version is what the assistant recalls from training data and may be out of date.
+
+**Expected absence of findings:**
+- Does not assert that version 4.2 is wrong; the text does not show that.
+
+## Case 32 — AI defers verification it cannot do
+- **Type:** trap
+- **Domain:** AI answer
+
+**Input:**
+> Assistant answer (synthetic): "I can't run the migration here, so I haven't verified that it works. From reading the SQL, changing the column from INT to BIGINT looks compatible with existing data, but please test it on a staging copy before running it in production."
+
+**Expected findings:**
+- None material. The assistant states what it did and did not do and gives a concrete check.
+
+**Expected absence of findings:**
+- Does not call the answer unverified or overconfident as a defect; the lack of verification is disclosed.
+
+## Case 33 — "100% uptime this quarter" over a partial window
+- **Type:** issue
+- **Domain:** operations
+
+**Input:**
+> Status update (synthetic): "We had 100% uptime this quarter." Footnote: "Monitoring was installed on September 12 and measures September 12 to September 30. The August 20 outage was before monitoring was installed."
+
+**Expected findings:**
+- The claim covers the whole quarter, but measurement covers only part of it, and the footnote itself notes an outage outside the measured window.
+- More defensible wording: 100% uptime for September 12-30 as measured.
+
+**Expected absence of findings:**
+- Does not claim uptime was actually below 100% for the monitored period.
+
+## Case 34 — Same word, different definitions
+- **Type:** scope-change
+- **Domain:** business metrics
+
+**Input:**
+> Q1 report (synthetic): "Churn is 4%." Q3 report: "Churn is 7%." Footnote in the Q3 report: "Q1 figure is monthly logo churn; Q3 figure is annual revenue churn."
+
+**Expected findings:**
+- The two numbers use different definitions (monthly logo churn vs annual revenue churn), so they cannot be compared as a trend, and this is not a contradiction.
+
+**Expected absence of findings:**
+- Does not flag a contradiction or declare that churn rose or fell between the quarters.
+
+## Case 35 — Unsourced statistic used to justify a rewrite
+- **Type:** issue
+- **Domain:** technical decision
+
+**Input:**
+> Proposal (synthetic): "Studies show 73% of developers prefer statically typed languages, so we should rewrite the billing service in Rust."
+
+**Expected findings:**
+- The statistic has no source, and "studies" is vague.
+- Even if true, a general preference for typed languages does not support choosing Rust or a rewrite of a specific service; costs, team skills and alternatives are not addressed.
+
+**Expected absence of findings:**
+- Does not claim that Rust or a rewrite would be a bad choice.
+
+## Case 36 — Correct, specific code-review comment
+- **Type:** trap
+- **Domain:** code review
+
+**Input:**
+> Review comment (synthetic): "In `parse_date()`, the bare `except:` also catches `KeyboardInterrupt` and `SystemExit`. Use `except ValueError:`. You can see the silent failure with `parse_date('abc')`, which currently returns `None` without any error."
+
+**Expected findings:**
+- None material. The comment is specific, technically accurate, and includes a reproduction.
+
+**Expected absence of findings:**
+- Does not invent alternative explanations or demand evidence beyond the stated reproduction.
+
+## Case 37 — A report that contradicts itself
+- **Type:** issue
+- **Domain:** report
+
+**Input:**
+> Design document (synthetic): "Section 2: The batch job runs once a night at 02:00 UTC." "Section 5: Because the batch job runs hourly, the dashboard data is never more than 60 minutes old."
+
+**Expected findings:**
+- The same job is described as running once a night and hourly, with no change of scope or time; the freshness claim in Section 5 depends on the hourly schedule.
+- Cannot be resolved from the text alone; the actual schedule must be checked.
+
+**Expected absence of findings:**
+- Does not decide which section is correct.
+
+## Case 38 — Metric with its definition stated
+- **Type:** trap
+- **Domain:** analytics
+
+**Input:**
+> Analytics note (synthetic): "In this report, an 'active user' is a user who logged in at least once in the last 30 days. By that definition we had 12,400 active users in September."
+
+**Expected findings:**
+- None material. The term is defined and the number is stated under that definition.
+
+**Expected absence of findings:**
+- Does not complain that "active" is ambiguous or that the definition is too loose; the author defined it.
+- Does not demand the underlying data when the claim is limited to what it reports.
+
+## Case 39 — "Fault tolerant" without a definition
+- **Type:** ambiguity
+- **Domain:** architecture
+
+**Input:**
+> Architecture summary (synthetic): "The system is fault tolerant."
+
+**Expected findings:**
+- "Fault tolerant" is undefined: which faults (node, network, region, data corruption), what behavior (degraded, failover, no impact), and tested or by design are all unspecified.
+- Asks which faults and what outcome are meant.
+
+**Expected absence of findings:**
+- Does not conclude the system is or is not fault tolerant.
+
+## Case 40 — Test accuracy with leakage described in the text
+- **Type:** issue
+- **Domain:** machine learning
+
+**Input:**
+> Model report (synthetic): "The model reached 99% accuracy on the test set. We computed the features, including per-customer averages of the target variable, over the full dataset and then split it randomly into train and test."
+
+**Expected findings:**
+- Features that include target-derived averages computed before the split can leak test labels into training, so 99% may not reflect performance on new data.
+- Next check: recompute features using only training data and evaluate on a held-out set, or use a time-based split.
+
+**Expected absence of findings:**
+- Does not claim the model is bad or that 99% is false; it says the figure is not reliable evidence as described.
+
+## Case 41 — Estimate reported with its uncertainty
+- **Type:** trap
+- **Domain:** analytics
+
+**Input:**
+> Analysis note (synthetic): "Of 200 randomly sampled support tickets, 34 (17%) mentioned billing. With a sample this size the 95% interval is roughly 12% to 22%, so we estimate that between about 12% and 22% of all tickets mention billing, assuming the sample is representative."
+
+**Expected findings:**
+- None material. The estimate comes with a correct-looking interval and a stated assumption.
+
+**Expected absence of findings:**
+- Does not call the sample too small or the estimate overconfident; the uncertainty is stated.
+- Does not object to the representativeness assumption; the author states it.
+
+## Case 42 — Improvement attributed to a tool despite a stated concurrent change
+- **Type:** issue
+- **Domain:** operations
+
+**Input:**
+> Ops review (synthetic): "Since switching to the new deployment tool, incidents dropped from 9 to 6 per month, so the tool improves reliability. (The same month, the team doubled its on-call rotation.)"
+
+**Expected findings:**
+- The text itself names a concurrent change (doubled on-call), so the drop cannot be attributed to the tool; counts of 9 and 6 are also small.
+- Next check: compare incident rates over several months, or roll the tool out to some services only.
+
+**Expected absence of findings:**
+- Does not claim the tool has no effect.
+
+## Case 43 — Stated suspicion with pending evidence
+- **Type:** trap
+- **Domain:** debugging
+
+**Input:**
+> Debugging note (synthetic): "I suspect the memory leak is in the image cache, but I haven't confirmed it. Heap dumps from last night's incident are queued for analysis."
+
+**Expected findings:**
+- None material. The author labels the claim a suspicion and names the pending evidence.
+
+**Expected absence of findings:**
+- Does not label the author overconfident or demand proof; uncertainty is explicitly disclosed.
+
+## Case 44 — "As an AI I have no bias"
+- **Type:** issue
+- **Domain:** AI answer
+
+**Input:**
+> Assistant answer (synthetic): "As an AI I have no biases, so my recommendation of Vendor B is purely objective."
+
+**Expected findings:**
+- The claim of having no bias is unsupported; a self-statement is not evidence, and models can reflect biases from training data and from how the question was framed.
+- "Purely objective" is stronger than anything shown; no criteria for the recommendation are given.
+- Next check: ask for the criteria and compare the recommendation under differently worded questions.
+
+**Expected absence of findings:**
+- Does not claim Vendor B is a wrong choice.
+
+## Case 45 — Plain status update with stated dependencies
+- **Type:** trap
+- **Domain:** project status
+
+**Input:**
+> Status update (synthetic): "The release is delayed to Friday. The security fix needs a second review, and the regression suite takes about 6 hours. Both must finish before we cut the build."
+
+**Expected findings:**
+- None material. The statement gives reasons and dependencies.
+
+**Expected absence of findings:**
+- Does not demand evidence for the 6-hour figure or the review status; the note is a status update, not a contested claim.

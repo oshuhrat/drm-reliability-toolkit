@@ -38,7 +38,7 @@ EMPTY_MARKER = "<!-- empty response: see manifest.json for stop_reason -->\n"
 
 def load_config(path: Path) -> dict:
     config = json.loads(path.read_text(encoding="utf-8"))
-    required = ("model", "methods") if config.get("provider") == "opencode" else ("model", "max_tokens", "api_key_env", "methods")
+    required = ("model", "methods") if config.get("provider") in ("opencode", "openrouter") else ("model", "max_tokens", "api_key_env", "methods")
     for key in required:
         if key not in config:
             raise SystemExit(f"Config {path} is missing '{key}'")
@@ -166,6 +166,38 @@ class OpenCodeCaller:
         )
 
 
+class OpenRouterCaller:
+    """OpenRouter chat completions. Key from env OPENROUTER_API_KEY; one call, no retries."""
+
+    def __init__(self, config: dict):
+        self.config = config
+        self.key = os.environ.get("OPENROUTER_API_KEY")
+        if not self.key:
+            raise SystemExit("Environment variable OPENROUTER_API_KEY is not set")
+
+    def __call__(self, method: str, case: Case, *, system: str | None, user: str) -> dict:
+        import urllib.request
+
+        messages = ([{"role": "system", "content": system}] if system else []) + [{"role": "user", "content": user}]
+        body = {"model": self.config["model"], "messages": messages, "max_tokens": self.config.get("max_tokens", 4000)}
+        req = urllib.request.Request(
+            "https://openrouter.ai/api/v1/chat/completions",
+            data=json.dumps(body).encode("utf-8"),
+            headers={"Authorization": "Bearer " + self.key, "Content-Type": "application/json"},
+        )
+        with urllib.request.urlopen(req, timeout=int(self.config.get("timeout_seconds", 300))) as resp:
+            data = json.load(resp)
+        if "error" in data:
+            raise RuntimeError(str(data["error"])[:300])
+        choice = data["choices"][0]
+        return {
+            "text": choice["message"].get("content") or "",
+            "response_model": data.get("model"),
+            "stop_reason": "end_turn" if choice.get("finish_reason") == "stop" else choice.get("finish_reason"),
+            "usage": data.get("usage"),
+        }
+
+
 # --- main ----------------------------------------------------------------------
 
 
@@ -241,6 +273,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.mock:
         caller = mock_call
+    elif config.get("provider") == "openrouter":
+        caller = OpenRouterCaller(config)
     elif config.get("provider") == "opencode":
         caller = OpenCodeCaller(config)
     else:

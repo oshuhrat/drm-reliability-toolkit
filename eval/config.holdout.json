@@ -1,0 +1,28 @@
+{
+  "config_version": "0.2.0",
+  "provider": "opencode",
+  "model": "opencode/muse-spark-1.3-contributor-free",
+  "delay_seconds": 1.0,
+  "methods": {
+    "drm_v3": {
+      "system_file": "skills/drm-audit/SKILL.md",
+      "strip_frontmatter": true,
+      "user_template": "Analyze this text for errors and unsupported claims.\n\n<text>\n{input}\n</text>"
+    },
+    "drm_v2": {
+      "system_file": "eval/skill_versions/drm-audit-v0.2.md",
+      "strip_frontmatter": true,
+      "user_template": "Analyze this text for errors and unsupported claims.\n\n<text>\n{input}\n</text>"
+    },
+    "baseline": {
+      "system": null,
+      "user_template": "Analyze this text for errors and unsupported claims.\n\n<text>\n{input}\n</text>"
+    }
+  },
+  "notes": [
+    "OpenCode backend. The system prompt is sent as an <instructions> block inside the user message; OpenCode adds its own agent prompt for every method.",
+    "Synthetic cases only: free/contributor models may log or reuse requests.",
+    "Run one model at a time, sequentially. Results describe this model, not Claude."
+  ],
+  "timeout_seconds": 120
+}

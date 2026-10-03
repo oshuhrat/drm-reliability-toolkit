@@ -6,3 +6,4 @@ eval/results/
 dist/
 __pycache__/
 *.pyc
+eval/_with_key.py

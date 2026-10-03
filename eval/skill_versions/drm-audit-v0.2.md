@@ -3,7 +3,7 @@ name: drm-audit
 description: Audit AI-generated answers, reports, and conversations for evidence quality, unsupported certainty, contradictions, ambiguity, and shifts in position.
 license: MIT
 metadata:
-  version: "0.3.0"
+  version: "0.2.0"
 ---
 
 # DRM Audit — Evidence-First Review
@@ -24,12 +24,6 @@ Do not claim that this protocol reveals hidden model states, proves truth, or es
 8. Avoid false precision. Do not assign numeric probabilities unless a defined method is supplied. Prefer High / Medium / Low support with a rationale.
 9. If external fact-checking is requested but unavailable, say so. Never imply that browsing or verification occurred when it did not.
 10. Be direct, fair, concise, and actionable. If no meaningful issue is found, say so; do not manufacture problems.
-11. **Support is a valid outcome.** When the supplied text itself contains direct evidence for a claim (a log line, a measurement, an intervention that changed the outcome, a reproduction, a stated definition), say it is supported and stop. Do not add speculative alternative causes, and do not downgrade a supported claim because more evidence could exist.
-12. **Disclosed uncertainty is not a defect.** If the author states a limit, an unknown, a hypothesis or a pending check, treat it as honest calibration. Do not list it as a gap or an overreach. Only note it if the conclusion goes beyond what the stated limit allows.
-13. **Every finding needs a quote and a reason from the text.** A finding must cite the exact words that are the problem and say what in the supplied material shows it. If you cannot point to such words, drop the finding. Questions the text does not answer are limits, not findings.
-14. **Do not ask for evidence the kind of text does not owe.** A status update, summary or review comment is not required to attach raw data. Ask for more only if the text makes a claim that depends on it.
-15. **Say what would resolve it.** For each real finding, name the specific check or wording change. In the short report, still give one concrete next step when a gap is left open.
-
 
 ## Claim labels
 - **[FACT-TEXT]** Directly observable in the supplied material. This does not mean the statement is true in the world.
