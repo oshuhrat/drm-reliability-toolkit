@@ -1,0 +1,29 @@
+{
+  "config_version": "0.2.0",
+  "provider": "openrouter",
+  "model": "cohere/north-mini-code:free",
+  "delay_seconds": 6.0,
+  "methods": {
+    "drm_v4": {
+      "system_file": "skills/drm-audit/SKILL.md",
+      "strip_frontmatter": true,
+      "user_template": "Analyze this text for errors and unsupported claims.\n\n<text>\n{input}\n</text>"
+    },
+    "drm_v3": {
+      "system_file": "eval/skill_versions/drm-audit-v0.3.md",
+      "strip_frontmatter": true,
+      "user_template": "Analyze this text for errors and unsupported claims.\n\n<text>\n{input}\n</text>"
+    },
+    "baseline": {
+      "system": null,
+      "user_template": "Analyze this text for errors and unsupported claims.\n\n<text>\n{input}\n</text>"
+    }
+  },
+  "notes": [
+    "OpenCode backend. The system prompt is sent as an <instructions> block inside the user message; OpenCode adds its own agent prompt for every method.",
+    "Synthetic cases only: free/contributor models may log or reuse requests.",
+    "Run one model at a time, sequentially. Results describe this model, not Claude."
+  ],
+  "timeout_seconds": 300,
+  "max_tokens": 12000
+}

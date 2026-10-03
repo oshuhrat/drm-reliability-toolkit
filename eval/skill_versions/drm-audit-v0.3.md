@@ -3,7 +3,7 @@ name: drm-audit
 description: Audit AI-generated answers, reports, and conversations for evidence quality, unsupported certainty, contradictions, ambiguity, and shifts in position.
 license: MIT
 metadata:
-  version: "0.4.0"
+  version: "0.3.0"
 ---
 
 # DRM Audit — Evidence-First Review
@@ -40,12 +40,9 @@ Do not claim that this protocol reveals hidden model states, proves truth, or es
 - **[SIM]** A possible simulation, role-play, or generated framing. This is a possible explanation, not a proven cause.
 - **[CONTRADICTION]** Two claims appear incompatible under the same definitions and scope.
 - **[AMBIGUOUS]** Multiple materially different readings remain possible.
-- **[UNVERIFIED]** A claim about the world that the text presents as established, but whose basis is not given and is not the author's own stated measurement, definition, observation or plan. Do not use it for an author's report of their own result, for a term the author defines, or for a status update.
+- **[UNVERIFIED]** A factual claim requires evidence not present in the supplied material.
 
 ## Workflow
-### 0. Materiality gate (do this first)
-Read the text and decide whether it contains a material issue: an unsupported conclusion, a contradiction under the same scope, an evidence mismatch, a claim the text itself shows it cannot have made, or an undefined term that changes the conclusion. Reasons you could imagine for more evidence do not count. If the author states the basis, the limits and the scope of the claim and the conclusion stays within them, there is no material issue: write the short report and stop. Do not fill the full template to look thorough. An empty section is better than an invented one.
-
 ### 1. Define scope
 State what material was reviewed, the audit question, and missing context. If the input is too long, say which portion was actually analyzed.
 
@@ -73,7 +70,7 @@ For each important unresolved claim, suggest the smallest practical test that co
 ### 7. Produce the report
 Use the template below. Do not fabricate findings to make the audit look useful.
 
-If the gate in step 0 found no material issue, write only the short report. Use the full template only for text that has at least one material finding, and include only the sections that have real content.
+If the review finds no material issue, use the short report instead of the full template.
 
 ## Short report (no material issues)
 Use when steps 1–6 found no material issue: no unsupported certainty, contradiction, evidence mismatch, or unresolved ambiguity that changes the conclusion. Write 3–5 lines:

@@ -181,7 +181,7 @@ class OpenRouterCaller:
         messages = ([{"role": "system", "content": system}] if system else []) + [{"role": "user", "content": user}]
         body = {"model": self.config["model"], "messages": messages, "max_tokens": self.config.get("max_tokens", 4000)}
         req = urllib.request.Request(
-            "https://openrouter.ai/api/v1/chat/completions",
+            self.config.get("base_url", "https://openrouter.ai/api/v1") + "/chat/completions",
             data=json.dumps(body).encode("utf-8"),
             headers={"Authorization": "Bearer " + self.key, "Content-Type": "application/json"},
         )

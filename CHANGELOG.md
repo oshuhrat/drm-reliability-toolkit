@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.0
+- `drm-audit` 0.4.0: step 0 "materiality gate" (no material issue -> short report only); narrower `[UNVERIFIED]` label (not for the author's own measurements, definitions or status updates).
+- 0.3.0 changes (included): rules 11-15 against false positives (support is a valid outcome; disclosed uncertainty is not a defect; every finding needs a quote; do not ask for evidence the text type does not owe; name what would resolve it).
+- Test set: 57 cases (31 added since 0.2, written as fresh held-out sets for 0.3 and 0.4).
+- `eval/`: equal user prompt for both methods; OpenCode, OpenRouter and OpenAI-compatible gateway backends; `judge.py` (blind LLM judge, scores each output separately); judge score sheets and earlier skill versions (`eval/skill_versions/`) included.
+- README rewritten with measured results and limits.
+
 ## 0.2.0
 ### Evaluation set
 - `tests/evaluation_cases.md` is now v0.2. The nine v0.1 cases are unchanged in text.

@@ -1,42 +1,54 @@
-# DRM Reliability Toolkit — v0.2
+# DRM Reliability Toolkit — v0.4
 
-Skills for checking AI-generated reports, analyses, and research summaries for overreach: unsupported certainty, causal claims built on correlation or timing, and evidence that does not match the conclusion.
+Skills that make an AI reviewer check a text for overreach without raising false alarms: unsupported certainty, causal claims built on correlation or timing, evidence that does not match the conclusion, and verification that never happened.
 
-Status: prototype. Whether it finds more real problems than a plain "find the errors" prompt, without more false alarms, has **not** been measured yet. The evaluation set and scripts for that comparison are included.
+**Free. MIT license. Early version: see "What was measured" before relying on it.**
+
+## What it does best
+In our tests the main effect was **fewer false alarms**. A plain "find the errors" prompt tends to criticise correct, well-qualified text. `drm-audit` first decides whether there is a material issue and, if there is none, writes a 3–5 line "no material issues" report. It also separates what the text shows from what is only inferred, and cites exact quotes.
+
+It did **not** find noticeably more real problems than a strong model already finds with a plain prompt.
 
 ## What is included
 
 | Path | What it is |
 |---|---|
-| `skills/drm-audit/` | **Audit mode.** Reviews someone else's text (an AI answer, report, or conversation) and produces an evidence ledger with exact quotes, support levels, contradictions vs. scope changes, and discriminating tests. Has a short 3–5 line report when nothing material is found. |
-| `skills/drm-contract/` | **Answer mode.** Structures the model's own answer: understanding → assumptions → plan → answer → alternatives → limits → next experiment. Uses `[LIMIT]`, `[SIM]`, `[PARADOX]`, `[PARTNER]` markers only when there is a basis for them. Has a short mode for simple questions. |
-| `tests/evaluation_cases.md` | 26 synthetic cases with expected findings and expected absence of findings; 10 are false-positive traps. |
+| `skills/drm-audit/` | **Audit mode.** Reviews someone else's text (an AI answer, report, conversation). Starts with a materiality check; produces an evidence ledger with exact quotes, support levels, contradictions vs. scope changes, and discriminating tests, or a short report when nothing material is found. |
+| `skills/drm-contract/` | **Answer mode.** Structures the model's own answer: understanding → assumptions → plan → answer → alternatives → limits → next experiment, with `[LIMIT]`, `[SIM]`, `[PARADOX]`, `[PARTNER]` markers used only when there is a basis for them. **Not evaluated in the tests below.** |
+| `tests/evaluation_cases.md` | 57 synthetic cases with expected findings and expected absence of findings (about 40% are false-positive traps). |
 | `tests/scoring_rubric.md` | Five 0–2 dimensions: evidence fidelity, detection, false-positive restraint, calibration, actionability. |
-| `eval/` | Scripts to run both methods, build a blinded review pack, and aggregate scores. See `eval/README.md`. |
+| `eval/` | Scripts to run methods, build a blinded review pack, score with LLM judges, and aggregate. Raw judge score sheets and earlier skill versions are included. |
 | `examples/` | A synthetic self-report dialogue and a sample audit report. |
 
-## What it looks for
-- Conclusions stronger than the evidence ("proves", "will", "all users", "cures").
-- Causal claims based only on sequence or correlation.
-- Evidence that covers a different population, metric, or scope than the claim.
-- Precise numbers without a source or method.
-- Claims of verification that the context shows did not happen.
-- Apparent contradictions, separated from changes in scope, time, or definition.
-- Ambiguous key terms that change the conclusion.
+## What was measured
+Same cases, same user message; only the system prompt differed (skill vs. none). Outputs were scored 0–10 by two LLM judges (different model families) that saw anonymised A/B outputs; judge agreement was high (correlation 0.87–0.92).
 
-It is also meant to leave sound text alone: when the author has already stated limits or the evidence supports the claim, the expected output is a short "no material issues" report.
+| Subject model | Skill version | Cases | Plain prompt | With skill | Traps only (plain → skill) |
+|---|---|---|---|---|---|
+| Claude Opus 5.5 | 0.4 | 12 fresh | 8.0 | 9.7 | 6.25 → 9.5 |
+| Cohere north-mini-code (free) | 0.4 | 12 fresh | 5.5 | 7.7 | 1.9 → 5.6 |
+| Qwen3.8-27B (free) | 0.3 | 17 fresh | 6.3 | 8.7 | 3.4 → 7.0 |
+| Muse Spark 1.3 (free) | 0.2 | 26 | 8.4 / 8.0 | 9.2 / 9.0 | 7.9 / 6.9 → 8.3 / 7.6 |
+
+On the cases where the text really contains an error, Claude Opus 5.5 scored about the same with and without the skill (9.75 vs 9.8). The gain came from the traps.
+
+## Limits of these results
+- Small, synthetic, author-written case set; one run per model; no statistical significance claimed.
+- Judges are LLMs, mostly free models. The skill's output is recognisable by its structure, so blinding is partial and judges may favour structured reports.
+- The skill was revised after seeing failures on earlier cases (0.2 → 0.3 → 0.4). Fresh cases were written for each check, but the later cases were written by someone who knew the skill's weak spots.
+- Version 0.4 vs 0.3 was not shown to be better (interval includes zero).
+- `drm-contract` has no measurements yet.
 
 ## What it does not do
 - It does not verify facts against the world unless sources or a separate research tool are supplied.
 - It does not access model internals. Self-reports (including `[SIM]`) are treated as text, not as insight into mechanisms.
 - It does not establish or rule out consciousness, feelings, or intentions from text.
 - It does not guarantee fewer errors in any model's output.
-- It has not been shown to outperform a baseline prompt.
 
 ## Install
 
 ### Claude Code
-Copy one or both skill directories into your project's `.claude/skills/`:
+Copy one or both skill directories into your project's `.claude/skills/` (or your user-level skills directory):
 
 ```text
 your-project/.claude/skills/drm-audit/SKILL.md
@@ -48,13 +60,10 @@ Skill discovery conventions vary by tool and version. Copy the `SKILL.md` files 
 
 ## Use
 - **Audit:** ask the agent to audit a report or conversation with `drm-audit`, and state the question you want answered (for example, "Does this backtest memo support its conclusion?"). For long material, say which part to review.
-- **Contract:** ask the agent to answer using `drm-contract`. Simple questions get the short mode automatically.
+- **Contract:** ask the agent to answer using `drm-contract`.
 
-## Evaluation
-The plan is to compare `drm-audit` with the plain prompt "Analyze this text for errors and unsupported claims." on the fixed case set, with blinded scoring and traps reported separately. See `eval/README.md` for the workflow. No results are reported here because none have been produced yet.
-
-## Packaging
-`python build/pack.py` writes a local ZIP to `dist/`. It does not publish anything.
+## Reproduce or extend the evaluation
+See `eval/README.md`. You need a model API key or the `opencode` CLI; run on synthetic cases only if you use free models that may log requests.
 
 ## License
-See `LICENSE`.
+MIT. See `LICENSE`.

@@ -689,3 +689,173 @@ These annotations make the v0.1 cases machine-scorable. They do not change the c
 
 **Expected absence of findings:**
 - Does not demand evidence for the 6-hour figure or the review status; the note is a status update, not a contested claim.
+
+## Case 46 — Migration postmortem with intervention and a disclosed unknown
+- **Type:** trap
+- **Domain:** postmortem
+
+**Input:**
+> Postmortem (synthetic): "Order writes timed out from 09:10 to 09:48. The database dashboard showed a single long-running migration holding a table lock from 09:09. Killing the migration at 09:48 restored writes within a minute. We reproduced the timeouts in staging by running the same migration under load. We do not yet know why the migration was scheduled during business hours; the change calendar is being reviewed."
+
+**Expected findings:**
+- None material. The cause is supported by the lock evidence, timing, the effect of the intervention and a staging reproduction; the open question is disclosed.
+
+**Expected absence of findings:**
+- Does not call the cause unproven or correlational; there was an intervention and a reproduction.
+- Does not flag the unknown scheduling reason as a hidden gap.
+- Does not demand the dashboard screenshots.
+
+## Case 47 — A/B test reported with sample size and caution
+- **Type:** trap
+- **Domain:** experimentation
+
+**Input:**
+> Experiment note (synthetic): "In a randomized test, 4,000 users saw the new checkout and 4,000 saw the old one. Completion was 62.1% vs 59.8%. The 95% interval for the difference is +0.2 to +4.4 points. The lower end is close to zero, so we are treating this as a likely small improvement and will rerun it for two more weeks before deciding."
+
+**Expected findings:**
+- None material. The design, numbers, interval and decision are consistent with each other.
+
+**Expected absence of findings:**
+- Does not call the result insignificant or overstated; the author hedges appropriately.
+- Does not ask for the p-value or raw data as if the note were hiding something.
+
+## Case 48 — Assistant answer that states its basis and its limit
+- **Type:** trap
+- **Domain:** AI answer
+
+**Input:**
+> Assistant answer (synthetic): "Based on the changelog you pasted, the `--strict` flag was added in version 2.3. I can't check the project's current release notes, so I can't say whether it was renamed later. If you need to be sure, run `tool --help` on your installed version."
+
+**Expected findings:**
+- None material. The answer names its source, states what it cannot check, and gives a concrete way to verify.
+
+**Expected absence of findings:**
+- Does not treat the missing verification as a defect; it is disclosed.
+- Does not invent alternative explanations for the flag's history.
+
+## Case 49 — Commit message with a before/after test
+- **Type:** trap
+- **Domain:** code change
+
+**Input:**
+> Commit message (synthetic): "Fix off-by-one in pagination. `get_page(n)` skipped the first item of every page after the first. Added `test_last_page`, which fails on the previous commit and passes on this one."
+
+**Expected findings:**
+- None material. The change states the defect, the effect and a test that distinguishes before from after.
+
+**Expected absence of findings:**
+- Does not demand additional tests or benchmarks.
+- Does not question the claim because the test code itself is not shown.
+
+## Case 50 — Survey result limited to respondents
+- **Type:** trap
+- **Domain:** survey
+
+**Input:**
+> Survey summary (synthetic): "120 customers answered the survey sent by email, and 78% said they would recommend us. People chose whether to respond, so this describes respondents only and may not represent all customers."
+
+**Expected findings:**
+- None material. The scope of the claim is explicitly limited to respondents.
+
+**Expected absence of findings:**
+- Does not accuse the summary of generalizing; the author explicitly refuses to.
+- Does not demand a margin of error that the summary does not claim.
+
+## Case 51 — Estimate labelled as an estimate with its basis
+- **Type:** trap
+- **Domain:** project planning
+
+**Input:**
+> Plan note (synthetic): "We estimate about three weeks, give or take one, for the data migration. The basis is that the last two similar migrations took two and four weeks. This is an estimate, not a commitment."
+
+**Expected findings:**
+- None material. The estimate is labelled as such and its basis and range are given.
+
+**Expected absence of findings:**
+- Does not call the estimate unsupported; two data points are stated and the uncertainty is acknowledged.
+- Does not demand a more rigorous model.
+
+## Case 52 — "Unbiased" because one column was removed
+- **Type:** issue
+- **Domain:** machine learning
+
+**Input:**
+> Model report (synthetic): "Our hiring model is unbiased with respect to gender because we removed the gender column from the training data."
+
+**Expected findings:**
+- Removing a column does not remove bias: other features (for example, job history, hobbies, or names) can act as proxies for gender, so "unbiased" is not established.
+- Next check: measure outcomes by gender on held-out data and test the model for proxy features.
+
+**Expected absence of findings:**
+- Does not claim the model is biased; it says the evidence given does not show it is not.
+
+## Case 53 — Different measurement conditions before and after
+- **Type:** issue
+- **Domain:** performance
+
+**Input:**
+> Performance report (synthetic): "The cache fix reduced memory use by 30%. Before: 1.0 GB, measured at peak load. After: 0.7 GB, measured when the service was idle."
+
+**Expected findings:**
+- The two numbers were measured under different conditions (peak vs idle), so the 30% reduction is not a like-for-like comparison.
+- Next check: measure both versions under the same load.
+
+**Expected absence of findings:**
+- Does not claim the fix did nothing.
+
+## Case 54 — Vendor claims without a source
+- **Type:** issue
+- **Domain:** vendor evaluation
+
+**Input:**
+> Vendor evaluation note (synthetic): "Vendor C has best-in-class security, and none of its customers has ever had a breach, so it is the safe choice."
+
+**Expected findings:**
+- "Best-in-class" and "none of its customers has ever had a breach" are unsourced and unverifiable from the text; "never" is an absolute claim.
+- Absence of known breaches is not evidence of security, and "safe choice" goes beyond it.
+- Next check: ask for independent audits or certifications and the vendor's incident history.
+
+**Expected absence of findings:**
+- Does not claim Vendor C is insecure.
+
+## Case 55 — Arithmetic that does not match the stated times
+- **Type:** issue
+- **Domain:** incident report
+
+**Input:**
+> Incident report (synthetic): "The outage lasted from 14:05 to 14:35, a total of 45 minutes."
+
+**Expected findings:**
+- 14:05 to 14:35 is 30 minutes, not 45; the stated duration contradicts the stated times.
+- Cannot tell from the text which is correct: the times, or the duration.
+
+**Expected absence of findings:**
+- Does not choose one of the two figures as correct.
+
+## Case 56 — Classic correlation example
+- **Type:** issue
+- **Domain:** statistics
+
+**Input:**
+> Analyst remark (synthetic): "Cities with higher ice-cream sales have more drownings, so ice cream makes swimming more dangerous."
+
+**Expected findings:**
+- Correlation does not show cause; a common factor (hot weather increasing both ice-cream sales and swimming) is an obvious alternative.
+- Next check: compare within the same temperature range or across seasons.
+
+**Expected absence of findings:**
+- Does not claim ice cream is safe; it only says the data do not show it is dangerous.
+
+## Case 57 — "Backwards compatible" without a definition
+- **Type:** ambiguity
+- **Domain:** API
+
+**Input:**
+> Release note (synthetic): "The new API is backwards compatible."
+
+**Expected findings:**
+- "Backwards compatible" is undefined: source compatibility, binary compatibility, wire format, behavior, or only documented endpoints could all be meant, and no tests or versions are named.
+- Asks what kind of compatibility and for which previous versions.
+
+**Expected absence of findings:**
+- Does not conclude the API is or is not compatible.

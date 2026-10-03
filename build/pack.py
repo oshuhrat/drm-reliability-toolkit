@@ -40,6 +40,13 @@ INCLUDE = [
     "eval/run_cases.py",
     "eval/blind_pack.py",
     "eval/aggregate.py",
+    "eval/judge.py",
+    "eval/opencode_client.py",
+    "eval/config.opencode.json",
+    "eval/config.openrouter.json",
+    "eval/config.claude.json",
+    "eval/skill_versions",
+    "eval/scores",
 ]
 EXCLUDE_PARTS = {"__pycache__", ".DS_Store"}
 
